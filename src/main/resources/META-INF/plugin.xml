@@ -5,6 +5,10 @@
     <vendor>emadinu</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
+    <depends optional="true">NodeJS</depends>
+    <depends optional="true">JavaScript</depends>
+    <depends optional="true">JavaScriptDebugger</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
