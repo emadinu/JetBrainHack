@@ -1,6 +1,11 @@
 package com.github.emadinu.jetbrainhack.toolWindow.panels
 
-
+import com.google.gson.Gson
+import com.github.emadinu.jetbrainhack.events.IntegrationEvent
+import com.github.emadinu.jetbrainhack.events.IntegrationEventBus
+import com.github.emadinu.jetbrainhack.events.UpdateEvent
+import com.github.emadinu.jetbrainhack.events.UpdateEventBus
+import com.github.emadinu.jetbrainhack.toolWindow.modules.FieldMatch
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBScrollPane
 import java.awt.BorderLayout // <- add this missing import!
@@ -25,6 +30,19 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
 import kotlin.concurrent.thread
+import com.github.emadinu.jetbrainhack.toolWindow.panels.MyToolWindowPanel
+import com.github.emadinu.jetbrainhack.toolWindow.psi.PsiTypeScriptExtractor
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.psi.filters.FalseFilter
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
+data class IntegrationResult(
+    val filePath: String,
+    val isNewFile: Boolean,
+    val fileContent: String
+)
 
 class RestClientPanelFactory {
 
@@ -237,6 +255,7 @@ class RestClientPanelFactory {
         val statusLabel = JLabel("Status: ")
         val timeLabel = JLabel("Time: ")
         val sizeLabel = JLabel("Size: ")
+        var json_for_diff : IntegrationResult = IntegrationResult("", false, "")
 
         val responsePanel = createResponsePanel(responseBodyTextArea, responseHeadersTextArea, statusLabel, timeLabel, sizeLabel)
 
@@ -253,15 +272,61 @@ class RestClientPanelFactory {
         integrateButton.background = Color(0x2679CA)
         integrateButton.addActionListener {
             // Handle integration into code
-            JOptionPane.showMessageDialog(
+            val result = JOptionPane.showConfirmDialog(
                 panel,
                 "This will generate code to integrate the current request into your project.",
                 "Integrate into Code",
+                JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.INFORMATION_MESSAGE
             )
-
             // Here you would implement the actual code generation and integration
             // For example, generating a Java/Kotlin class that makes this HTTP request
+            if (result == JOptionPane.OK_OPTION) {
+
+                if (json_for_diff.isNewFile == true) {
+                    val fileContent = "Generated code here"
+                    // Create the file and write content to it
+                    // For example, using Java NIO or any other file handling method
+                    val projectBasePath = project.basePath?:""
+                    val pathName = "/frontend/" + json_for_diff.filePath
+                    println(pathName)
+                    val path = Paths.get(projectBasePath, pathName)
+                    println(path)
+
+                    val parentDir: Path? = path.parent
+                    if (parentDir != null && !Files.exists(parentDir)) {
+                        println("Creating directories: $parentDir")
+                        Files.createDirectories(parentDir)
+                    }
+
+                    Files.write(path, json_for_diff.fileContent.toByteArray())
+                    val integrationData = mapOf(
+                        "filePath" to pathName,
+                        "fileContent" to json_for_diff.fileContent,
+                        "fileExists" to "true"
+                    )
+                    IntegrationEventBus.publish(IntegrationEvent(integrationData))
+                } else {
+                    println(json_for_diff.filePath)
+                    if (json_for_diff.filePath == "") {
+                        val integrationData = mapOf(
+                            "filePath" to "C:\\Users\\Ana\\Desktop\\abdullah\\EMS\\frontend\\pages\\login.tsx",
+                            "fileContent" to "Generated code here",
+                            "fileExists" to "false"
+                        )
+                        IntegrationEventBus.publish(IntegrationEvent(integrationData))
+                    } else {
+                        val fileExists = json_for_diff.isNewFile.toString()
+                        print(fileExists)
+                        val integrationData = mapOf(
+                            "filePath" to json_for_diff.filePath,
+                            "fileContent" to json_for_diff.fileContent,
+                            "fileExists" to json_for_diff.isNewFile.toString()
+                        )
+                        IntegrationEventBus.publish(IntegrationEvent(integrationData))
+                    }
+                }
+            }
         }
 
         // Create a panel to hold the button at the right side
@@ -359,7 +424,89 @@ class RestClientPanelFactory {
                         }
                     }
 
+                    val classesJson = ApplicationManager.getApplication().runReadAction<String> {
+                        PsiTypeScriptExtractor.extractTypeScriptClasses(project).toString()
+                    }
+
+                    // cu asta primesti clasele din json si cu cn sunt matchy
                     val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+
+//                    com.github.emadinu.jetbrainhack.toolWindow.api.EmbeddingService.integrateCode(
+//                        requestType = method,
+//                        apiUrl = url,
+//                        JSONFormat = response.body(),
+//                        module = 1,
+//                        callback = { result ->
+//                            println("Integration result: $result")
+//
+//                            val gson = Gson()
+//                            json_for_diff = gson.fromJson(result, IntegrationResult::class.java)
+//                        }
+//                    )
+//                    UpdateEventBus.publish(UpdateEvent(response.body()))
+//
+//                    com.github.emadinu.jetbrainhack.toolWindow.api.EmbeddingService.sendClassesAndResponse(
+//                        classesJson = classesJson,
+//                        responseJson = response.body(),
+//                        callback = { result2 ->
+//                            println("EmbeddingService result: $result2")
+//                            // send data to InterfaceModule
+//                            val gson = Gson()
+//                            val listType = object : com.google.gson.reflect.TypeToken<List<FieldMatch>>() {}.type
+//                            val matches: List<FieldMatch> = gson.fromJson(result2, listType)
+////                            val integrationData = mapOf(
+////                                "filePath" to json_for_diff.field,
+////                                "fileContent" to json_for_diff.matchesWith,
+////                                "fileExists" to json_for_diff.score.toString()
+////                            )
+////                            IntegrationEventBus.publish(IntegrationEvent(integrationData))
+//                            for (match in matches) {
+//                                val integrationData = mapOf(
+//                                    "filePath" to match.field,
+//                                    "fileContent" to match.matchesWith,
+//                                    "fileExists" to match.score.toString()
+//                                )
+//                                IntegrationEventBus.publish(IntegrationEvent(integrationData))
+//                            }
+//
+//                        }
+//                    )
+
+                    com.github.emadinu.jetbrainhack.toolWindow.api.EmbeddingService.integrateCode(
+                        requestType = method,
+                        apiUrl = url,
+                        JSONFormat = response.body(),
+                        module = 1,
+                        callback = { result ->
+                            println("Integration result: $result")
+
+                            val gson = Gson()
+                            json_for_diff = gson.fromJson(result, IntegrationResult::class.java)
+
+                            Thread.sleep(2000)
+
+                            com.github.emadinu.jetbrainhack.toolWindow.api.EmbeddingService.sendClassesAndResponse(
+                                classesJson = classesJson,
+                                responseJson = response.body(),
+                                callback = { result2 ->
+                                    println("EmbeddingService result: $result2")
+                                    val listType = object : com.google.gson.reflect.TypeToken<List<FieldMatch>>() {}.type
+                                    val matches: List<FieldMatch> = gson.fromJson(result2, listType)
+
+                                    for (match in matches) {
+                                        val integrationData = mapOf(
+                                            "type" to "fieldMatch",
+                                            "filePath" to match.field,
+                                            "fileContent" to match.matchesWith,
+                                            "fileExists" to match.score.toString()
+                                        )
+                                        IntegrationEventBus.publish(IntegrationEvent(integrationData))
+                                    }
+                                }
+                            )
+                        }
+                    )
+
                     val endTime = System.currentTimeMillis()
                     val duration = endTime - startTime
 
