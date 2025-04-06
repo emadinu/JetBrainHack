@@ -1,51 +1,50 @@
-# JetBrainHack
+# WebStorm Axios Generator Plugin
 
-![Build](https://github.com/emadinu/JetBrainHack/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
+## Overview
 
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [pluginGroup](./gradle.properties) and [pluginName](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml) and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin description in `README` (see [Tips][docs:plugin-description])
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
+The WebStorm Axios Generator Plugin is an innovative tool that automatically generates axios calls by learning from your repository using a Retrieval Augmented Generation (RAG) approach. It communicates with a backend server that returns both the file path for creating or updating code and the complete generated code. Additionally, the plugin provides a custom side-by-side diff view using a Longest Common Subsequence (LCS) algorithm—an essential feature since WebStorm lacks built-in support for diff visualization.
 
-<!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+## Features
 
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
-
-To keep everything working, do not remove `<!-- ... -->` sections. 
-<!-- Plugin description end -->
+- **Automatic Axios Call Generation**: Utilizes a RAG approach to analyze your repository context and generate axios calls.
+- **Server-Driven Updates**: Retrieves the target file path and the complete updated code from a server.
+- **Custom Diff View**: Displays a side-by-side diff using an LCS algorithm, enabling clear visual comparisons of code changes.
+- **Seamless WebStorm Integration**: Enhances your development workflow within the WebStorm IDE.
+- **Enhanced Code Review**: Facilitates an easier review process by showing exactly what will change before applying updates.
 
 ## Installation
 
-- Using the IDE built-in plugin system:
-  
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "JetBrainHack"</kbd> >
-  <kbd>Install</kbd>
-  
-- Using JetBrains Marketplace:
+1. **Download the Plugin**:  
+   Clone the project and run the plugin. It will open a separate Webstorm window
 
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
+## Usage
 
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+1. **Trigger the Plugin**:  
+   Launch the plugin from its designated menu or by using the assigned shortcut.
 
-- Manually:
+2. **Repository Analysis**:  
+   The plugin analyzes your repository using the RAG approach to understand the context and code structure.
 
-  Download the [latest release](https://github.com/emadinu/JetBrainHack/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+3. **Generate Axios Call**:  
+   Upon activation, the plugin sends a request to the backend server. The server processes the repository context and returns:
+   - The file path where the new or updated code should be saved.
+   - The complete generated axios call code.
+
+4. **Review Diff**:  
+   The plugin presents a side-by-side diff view created with a custom LCS algorithm. This allows you to visually compare the generated code with the existing code before making any changes.
+
+5. **Apply Changes**:  
+   After reviewing the diff, apply the changes to update or create the file in your project.
+
+## Configuration
+
+- **Server Endpoint**:  
+  Configure the server endpoint URL in the plugin settings to ensure proper communication.
+
+- **Diff Settings**:  
+  Adjust the settings for the diff view if necessary to better suit your review process.
+
+- **Advanced RAG Options**:  
+  Fine-tune any available parameters related to the RAG approach based on your repository and project needs.
 
 
----
-Plugin based on the [IntelliJ Platform Plugin Template][template].
-
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
