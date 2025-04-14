@@ -34,7 +34,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.opentest4j)
     implementation("org.json:json:20210307") // JSON library for Kotlin
-    implementation("com.google.code.gson:gson:2.10.1") // Gson library for Kotlin
+    implementation("com.google.code.gson:gson:2.13.0") // Gson library for Kotlin
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
 
